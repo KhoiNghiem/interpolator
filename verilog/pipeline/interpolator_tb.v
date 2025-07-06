@@ -5,7 +5,7 @@ module interpolator_tb();
     reg [18:0] mu;
     wire [18:0] IntpOut;
 
-    localparam NUM_DATA = 9;
+    localparam NUM_DATA = 21;
     localparam NUM_MU = 9;
 
     reg [18:0] input_data [0:NUM_DATA-1]; 
@@ -15,7 +15,6 @@ module interpolator_tb();
     integer i_mu;
     integer fd_x;
     integer fd_mu;
-    integer fd_out;
 
     interpolator uut(
         .clk(clk),
@@ -37,7 +36,7 @@ module interpolator_tb();
     end
 
     initial begin
-        fd_x = $fopen("input_x2m.txt", "r");
+        fd_x = $fopen("input_xm.txt", "r");
         if (fd_x == 0) begin
             $display("Error: Could not open input file.");
             $finish;
@@ -66,11 +65,9 @@ module interpolator_tb();
         $fclose(fd_mu);
     end
 
-    
-
     initial begin
         // Reset filter
-        #10;
+        #100;
 
         for (i_x = 0; i_x < NUM_DATA; i_x = i_x + 1) begin
             Intplt = input_data[i_x];
@@ -79,37 +76,6 @@ module interpolator_tb();
                 #10;
             end
         end
-    end
-
-    initial begin
-        fd_out = $fopen("output_x2.txt", "w");
-        if (fd_out == 0) begin
-            $display("Error: Could not open output file.");
-            $finish;
-        end
-    end
-
-    reg[15:0] count_output;
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            count_output <= 0;
-        end else begin
-            count_output <= count_output + 1;
-        end
-    end
-
-    always @(posedge clk) begin
-        // if (count_output > 8'd27 && count_output < 8'd181) begin
-        if (count_output > 27 && count_output < 82) begin
-            // Ghi giá trị data_out vào file dưới dạng nhị phân
-            $fdisplay(fd_out, "%b", IntpOut);  // Lưu dữ liệu dưới dạng nhị phân
-        end
-    end
-
-    // Đóng file output sau khi kết thúc mô phỏng
-    initial begin
-        #5000;  // Đợi thời gian đủ để ghi dữ liệu
-        $fclose(fd_out);
     end
 
 endmodule
